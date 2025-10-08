@@ -12,8 +12,6 @@ public static partial class Constants
         public static class XFrameOptionsValues
         {
             public const string SameOrigin = "SAMEORIGIN";
-            public const string Deny = "DENY";
-            public const string AllowFrom = "ALLOW-FROM";
         }
         
         public static class XContentTypeOptionsValues
@@ -24,7 +22,6 @@ public static partial class Constants
         public static class XxssProtectionValues
         {
             public const string Enabled = "1; mode=block";
-            public const string Disabled = "0";
         }
     }
 }

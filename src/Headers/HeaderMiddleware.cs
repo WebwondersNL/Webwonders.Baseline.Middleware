@@ -13,42 +13,29 @@ public static class HeaderMiddleware
     {
         if (env.IsProduction())
         {
-            // Get the setting from appsettings whether this should be on or not
             var configSection = configuration.GetSection("Webwonders:Middleware");
 
-            if (configSection != null)
+            app.Use(async (context, next) =>
             {
-                app.Use(async (context, next) =>
+                var xContentTypeOption = configSection[Constants.Headers.XContentTypeOptions] 
+                    ?? Constants.Headers.XContentTypeOptionsValues.Nosniff;
+                context.Response.Headers.Append("X-Content-Type-Options", xContentTypeOption);
+
+                var xFrameOption = configSection[Constants.Headers.XFrameOptions] 
+                    ?? Constants.Headers.XFrameOptionsValues.SameOrigin;
+                context.Response.Headers.Append("X-Frame-Options", xFrameOption);
+
+                var xssProtection = configSection[Constants.Headers.XxssProtection] 
+                    ?? Constants.Headers.XxssProtectionValues.Enabled;
+                context.Response.Headers.Append("X-XSS-Protection", xssProtection);
+
+                if ((configSection[Constants.Headers.Hsts] ?? "true") == "true")
                 {
-                    var xContentTypeOption = configSection[Constants.Headers.XContentTypeOptions];
-                    if (xContentTypeOption == Constants.Headers.XContentTypeOptionsValues.Nosniff)
-                    {
-                        context.Response.Headers.Append("X-Content-Type-Options", xContentTypeOption);
-                    }
+                    app.UseHsts();
+                }
 
-                    var xFrameOption = configSection[Constants.Headers.XFrameOptions];
-                    if (xFrameOption == Constants.Headers.XFrameOptionsValues.SameOrigin ||
-                        xFrameOption == Constants.Headers.XFrameOptionsValues.Deny ||
-                        xFrameOption == Constants.Headers.XFrameOptionsValues.AllowFrom)
-                    {
-                        context.Response.Headers.Append("X-Frame-Options", xFrameOption);
-                    }
-
-                    var xssProtection = configSection[Constants.Headers.XxssProtection];
-                    if (xssProtection == Constants.Headers.XxssProtectionValues.Enabled ||
-                        xssProtection == Constants.Headers.XxssProtectionValues.Disabled)
-                    {
-                        context.Response.Headers.Append("X-XSS-Protection", xssProtection);
-                    }
-                    
-                    if (configSection[Constants.Headers.Hsts] == "true")
-                    {
-                        app.UseHsts();
-                    } 
-                    
-                    await next();
-                });
-            }
+                await next();
+            });
         }
         return app;
     }
