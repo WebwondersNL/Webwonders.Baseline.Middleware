@@ -15,6 +15,11 @@ public static class HeaderMiddleware
         {
             var configSection = configuration.GetSection("Webwonders:Middleware");
 
+            if ((configSection[Constants.Headers.Hsts] ?? "true") == "true")
+            {
+                app.UseHsts();
+            }
+            
             app.Use(async (context, next) =>
             {
                 var xContentTypeOption = configSection[Constants.Headers.XContentTypeOptions] 
@@ -25,15 +30,10 @@ public static class HeaderMiddleware
                     ?? Constants.Headers.XFrameOptionsValues.SameOrigin;
                 context.Response.Headers.Append("X-Frame-Options", xFrameOption);
 
-                var xssProtection = configSection[Constants.Headers.XxssProtection] 
-                    ?? Constants.Headers.XxssProtectionValues.Enabled;
-                context.Response.Headers.Append("X-XSS-Protection", xssProtection);
-
-                if ((configSection[Constants.Headers.Hsts] ?? "true") == "true")
-                {
-                    app.UseHsts();
-                }
-
+                var referrerPolicy = configSection[Constants.Headers.ReferrerPolicy]
+                    ?? Constants.Headers.ReferrerPolicyValues.StrictOriginWhenCrossOrigin;
+                context.Response.Headers.Append("Referrer-Policy", referrerPolicy);
+                
                 await next();
             });
         }
