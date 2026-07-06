@@ -5,9 +5,12 @@ public static partial class Constants
     public static class Headers
     {
         public const string Hsts = "Enable_HSTS";
+        public const string HstsMaxAgeDays = "HSTS_MaxAgeDays";
         public const string XFrameOptions = "Enable_X-Frame-Options";
         public const string XContentTypeOptions = "Enable_X-ContentType-Options";
         public const string ReferrerPolicy = "Enable_Referrer-Policy";
+
+        public const int HstsMaxAgeDaysDefault = 366;
         
         public static class XFrameOptionsValues
         {
